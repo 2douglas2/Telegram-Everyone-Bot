@@ -18,6 +18,8 @@ namespace TelegramFunctions
     {
 
         private readonly TelegramBotClient _botClient;
+        private string connectionString = Environment.GetEnvironmentVariable("sqldb_connection");
+
         public SetUpBot()
         {
             _botClient = new TelegramBotClient(System.Environment.GetEnvironmentVariable("TelegramBotToken", EnvironmentVariableTarget.Process));
@@ -33,6 +35,10 @@ namespace TelegramFunctions
             var handleUpdateFunctionUrl = req.Url.ToString().Replace(SetUpFunctionName, UpdateFunctionName,
                                                 ignoreCase: true, culture: CultureInfo.InvariantCulture);
             await _botClient.SetWebhookAsync(handleUpdateFunctionUrl);
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+            }
         }
 
         [Function(UpdateFunctionName)]
