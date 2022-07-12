@@ -34,11 +34,10 @@ namespace TelegramFunctions
         {
             var handleUpdateFunctionUrl = req.Url.ToString().Replace(SetUpFunctionName, UpdateFunctionName,
                                                 ignoreCase: true, culture: CultureInfo.InvariantCulture);
+
+
             await _botClient.SetWebhookAsync(handleUpdateFunctionUrl);
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-            }
+
         }
 
         [Function(UpdateFunctionName)]
@@ -54,23 +53,81 @@ namespace TelegramFunctions
 
             await _botClient.SendTextMessageAsync(
             chatId: update.Message.Chat.Id,
-            text: GetBotResponseForInput(update.Message.Text));
+            text: GetBotResponseForInput(update.Message.Text, update.Message.Chat.Id, update.Message.From.Username));
         }
 
-        private string GetBotResponseForInput(string text)
+        private string GetBotResponseForInput(string text, long ChatID, string Username)
         {
             try
             {
-                if (text.Contains("pod bay doors", StringComparison.InvariantCultureIgnoreCase))
+                /*if (text.Contains("pod bay doors", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return "I'm sorry Dave, I'm afraid I can't do that";
-                }
+                }*/
+                string[] t = text.Split(" ", 2);
+                string command = t[0].Split("@", 2)[0];
+                string answer;
+                switch (command)
+                {
+                    case "/start":
+                        answer = "Bem vindo ao EveryoneBotGroup";
+                        break;
+                    case "/everyone":
+                        answer = "@douglas_sakuta @marioces @viniciussec";
+                        break;
+                    case "/addMember":
+                        answer = Username + " foi adicionado ao grupo " + t[1];
+                        /*using (SqlConnection connection = new SqlConnection(connectionString))
+                        {
+                            connection.Open();
+                            Microsoft.Data.SqlClient.SqlParameter parameter;
+                            using (Microsoft.Data.SqlClient.SqlCommand commandSql = new Microsoft.Data.SqlClient.SqlCommand())
+                            {
+                                commandSql.Connection = connection;
+                                commandSql.CommandType = System.Data.CommandType.Text;
+                                commandSql.CommandText = @"  
+INSERT INTO SalesLT.Product  
+        (Name,  
+        ChatID,  
+        GroupName 
+        )  
+    OUTPUT  
+        INSERTED.ProductID  
+    VALUES  
+        (@Name,  
+        @ChatID,  
+        @GroupName
+        ); ";
 
-                return new DataTable().Compute(text, null).ToString();
+                                parameter = new Microsoft.Data.SqlClient.SqlParameter("@Name", System.Data.SqlDbType.NVarChar, 50);
+                                parameter.Value = Username;
+                                commandSql.Parameters.Add(parameter);
+
+                                parameter = new Microsoft.Data.SqlClient.SqlParameter("@ChatID", System.Data.SqlDbType.Int);
+                                parameter.Value = ChatID;
+                                commandSql.Parameters.Add(parameter);
+
+                                parameter = new Microsoft.Data.SqlClient.SqlParameter("@GroupName", System.Data.SqlDbType.NVarChar,50);
+                                parameter.Value = t[1];
+                                commandSql.Parameters.Add(parameter);
+
+                                int productId = (int)commandSql.ExecuteScalar();
+                            }
+                        }*/
+                        break;
+                    case "/removeMember":
+                        answer = Username + " foi removido do grupo " + t[1];
+                        break;
+                    default:
+                        answer = "Não entendi seu pedido";
+                        break;
+                }
+                //return new DataTable().Compute(t[1], null).ToString();
+                return answer;
             }
-            catch
+            catch 
             {
-                return $"Dear human, I can solve math for you, try '2 + 2 * 3'  ";
+                return $"Error interno no Bot";
             }
         }
 
