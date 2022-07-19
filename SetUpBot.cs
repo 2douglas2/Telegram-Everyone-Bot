@@ -52,8 +52,9 @@ namespace TelegramFunctions
                 return;
 
             await _botClient.SendTextMessageAsync(
-            chatId: update.Message.Chat.Id,
-            text: GetBotResponseForInput(update.Message.Text, update.Message.Chat.Id, update.Message.From.Username));
+                chatId: update.Message.Chat.Id,
+                text: GetBotResponseForInput(
+                    update.Message.Text, update.Message.Chat.Id, update.Message.From.Username));
         }
 
         private string GetBotResponseForInput(string text, long ChatID, string Username)
@@ -73,10 +74,15 @@ namespace TelegramFunctions
                         answer = "Bem vindo ao EveryoneBotGroup";
                         break;
                     case "/everyone":
-                        answer = "@douglas_sakuta @marioces @viniciussec";
+                        answer = "@dougla_sil @marioces @viniciussec";
                         break;
                     case "/addMember":
-                        answer = Username + " foi adicionado ao grupo " + t[1];
+                        if (t.Length == 2)
+                            answer = Username + " foi adicionado ao grupo " + t[1];
+                        else
+                            answer = Username + " foi adicionado ao grupo";
+
+
                         /*using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
@@ -122,12 +128,11 @@ INSERT INTO SalesLT.Product
                         answer = "Não entendi seu pedido";
                         break;
                 }
-                //return new DataTable().Compute(t[1], null).ToString();
                 return answer;
             }
-            catch 
+            catch
             {
-                return $"Error interno no Bot";
+                return $"internal bot error";
             }
         }
 
